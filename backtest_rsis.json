@@ -1,0 +1,63 @@
+{
+    "query":{"bool": {"must": [{"range": {"date": {"gte": "%s", "lte": "%s"}}}, {"term": {"symbol": "%s"}}]}},
+    "aggs": {
+        "Backtest_RSIs": {
+			"date_histogram": {
+				"field": "date",
+				"fixed_interval": "1d",
+				"format": "yyyy-MM-dd"
+			},
+			"aggs": {
+				"SDaily": {
+					"bucket_selector": {
+						"buckets_path": {
+							"count": "_count"
+						},
+						"script": "params.count > 0"
+					}
+				},
+				"Close": {
+					"avg": {
+						"field": "close"
+					}
+				},
+				"DClose": {
+					"derivative": {
+						"buckets_path": "Close"
+					}
+				},
+				"SDClose":{"bucket_selector": {"buckets_path": {"DClose": "DClose"}, "script": "params.DClose != null"}},
+				"Gain": {
+					"bucket_script": {
+						"buckets_path": {
+							"DClose": "DClose"
+						},
+						"script": "(params.DClose > 0) ? params.DClose : 0"
+					}
+				},
+				"Loss": {
+					"bucket_script": {
+						"buckets_path": {
+							"DClose": "DClose"
+						},
+						"script": "(params.DClose < 0) ? -params.DClose: 0"
+					}
+				},
+				"GainSMA14": {"moving_fn": {"script": "MovingFunctions.unweightedAvg(values)", "window": 14, "buckets_path": "Gain", "shift":1}},
+				"LossSMA14": {"moving_fn": {"script": "MovingFunctions.unweightedAvg(values)", "window": 14, "buckets_path": "Loss", "shift":1}},
+				"GainEWMA27S": {"moving_fn": {"script": "MovingFunctions.ewma(values, 0.071428571)", "window": 27, "buckets_path": "Gain", "shift":1}},
+                		"LossEWMA27S": {"moving_fn": {"script": "MovingFunctions.ewma(values, 0.071428571)", "window": 27, "buckets_path": "Loss", "shift":1}},
+				"GainEWMA27L": {"moving_fn": {"script": "MovingFunctions.ewma(values, 0.071428571)", "window": 110, "buckets_path": "Gain", "shift":1}},
+                		"LossEWMA27L": {"moving_fn": {"script": "MovingFunctions.ewma(values, 0.071428571)", "window": 110, "buckets_path": "Loss", "shift":1}},
+                		"RSISMA14": {"bucket_script": {"buckets_path": {"GainSMA14": "GainSMA14", "LossSMA14": "LossSMA14"},
+					"script": "100 - 100.0/(1+params.GainSMA14/params.LossSMA14)"}},
+				"RSIEWMA27S": {"bucket_script": {"buckets_path": {"GainEWMA27S": "GainEWMA27S", "LossEWMA27S": "LossEWMA27S"},
+					"script": "100 - 100.0/(1+params.GainEWMA27S/params.LossEWMA27S)"}},
+				"RSIEWMA27L": {"bucket_script": {"buckets_path": {"GainEWMA27L": "GainEWMA27L", "LossEWMA27L": "LossEWMA27L"},
+					"script": "100 - 100.0/(1+params.GainEWMA27L/params.LossEWMA27L)"}}
+			}
+		}
+    }, 
+    "from": 0, 
+    "size": 0
+}
