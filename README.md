@@ -1,6 +1,6 @@
 # Backtest_RSI
-Materials for the article "Wow! Backtest RSI Crossover Strategy in Elasticsearch" in Medium
-(https://wtwong316.medium.com/wow-backtest-rsi-crossover-strategy-in-elasticsearch-1cdf837a72a1)
+Materials for the article "Significant Influence of the Moving Average Function on the Backtest Results of the RSI Crossover Strategy" in Medium
+(https://wtwong316.medium.com/significant-influence-of-the-moving-average-function-on-the-backtest-results-of-the-rsi-crossover-efbabb07904d)
 
 The following steps have been tested with Elasticsearch Server v7.10.1
 
@@ -8,14 +8,9 @@ The following steps have been tested with Elasticsearch Server v7.10.1
 
 ./fidelity28_index.sh
 
-2. Assume you have installed python 3.7, run the following command to go to virtual environment and prepare the python packages needed.
+2. Assume you have installed python 3.7, run the following command to go to virtual environment.
 
 source venv/bin/activate
 
-pip install -r requirements.txt
-
-3. After the indices are created and the data are populated, You can try different ticker symbol such as FDEV, FMAT, FTEC, FHLC, FENY, FSTA, FDIS, FQAL, FDLO, FDMO and FUTY to backtest the RSI trading strategy. A report will be shown for the statistical data.
-
-./backtest_rsi.sh FDEV
-
-
+3. After the indices are created and the data are populated, You can try different ticker symbol such as FDEV, FMAT, FTEC, FHLC, FENY, FSTA, FDIS, FQAL, FDLO, FDMO and FUTY to backtest the RSI trading strategy. A report will be shown for the statistical data.  The python packages needed are automatically installed.
+./backtest_rsis.sh -i backtest_rsis.json -s FDEV -b 2021-02-01 -e 2021-05-31
